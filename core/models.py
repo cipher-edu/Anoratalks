@@ -1,5 +1,56 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+import  random
+from django.urls import reverse
+from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin, User
+class UserProfile(models.Model):
+    first_name = models.CharField(max_length=50,verbose_name="Ism")
+    last_name = models.CharField(max_length=50,verbose_name="Familiya")
+    middle_name = models.CharField(max_length=50, blank=True, null=True,verbose_name="Otasining ismi")
+    birth_date = models.DateField(verbose_name="Tug'ilgan sana")
+    address = models.CharField(max_length=255,verbose_name="Manzil")
+    phone_number = models.CharField(max_length=20, verbose_name="Telefon raqami")
+    username = models.CharField(max_length=100, unique=True,verbose_name="Foydalanuvchi nomi")
+    password = models.CharField(max_length=100, default='Anora2025*')
 
+    def clean(self):
+        """
+        Bu metodda `first_name`, `last_name` va `middle_name` bo'yicha noyoblikni
+        ta'minlash uchun kerakli tekshiruv o'rnatamiz.
+        """
+        # Agar ism, familiya va otasining ismi bir xil bo'lsa, xatolik qaytaring
+        if UserProfile.objects.filter(
+                first_name=self.first_name,
+                last_name=self.last_name,
+                middle_name=self.middle_name
+        ).exclude(pk=self.pk).exists():
+            raise ValidationError(
+                _('Bunday ism, familiya va otasining ismi bilan foydalanuvchi allaqachon mavjud.')
+            )
+
+    def save(self, *args, **kwargs):
+        # Tasdiqni bajarish
+        self.clean()
+
+        # Django User modelidan avtomatik foydalanuvchi yaratish
+        user, created = User.objects.get_or_create(username=self.username, defaults={
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'is_staff': True,  # Avtomatik `staff` bo'lishiga ruxsat
+            'is_active': True  # Tizimga kirish uchun faollik
+        })
+
+        if created:
+            # Yaratilgan foydalanuvchilar uchun parolni generatsiya qilish
+            user.set_password(self.password)  # Parolni xavfsiz tarzda qo'shish
+            user.save()
+
+        # Modelni saqlash
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 class Course(models.Model):
     LEVEL_CHOICES = [
         ('Boshlang‘ich', 'Boshlang‘ich'),
