@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-oq6e^himuip5r0s^a)su#=3m^*23&ravb@w1!d7!!mr=u88=&5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -118,11 +118,26 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+import os
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS=[
+    BASE_DIR/ "static"
+]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-STATIC_URL = 'static/'
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+
+]
+#local media
+# MEDIA_ROOT = BASE_DIR / 'media'
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 MEDIA_URL = 'media/'
 #server
-# MEDIA_ROOT = '/home/ciphered/crm.cipher-edu.uz/crm/media/'
 MEDIA_ROOT = '/media/'
 
 
@@ -131,13 +146,16 @@ LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# settings.py
+
+# ... boshqa sozlamalar ...
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Konsolga email yuborish uchun
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # SMTP orqali yuborish uchun
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'ciphereduuz@gmail.com'
-EMAIL_HOST_PASSWORD = '16172714Oo.'  # Bu yerga 16 xonali maxsus parolni qo‘ying
-DEFAULT_FROM_EMAIL = 'ciphereduuz@gmail.com'
-
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_HOST_USER = 'oybek998997564934@gmail.com' # Sizning haqiqiy emailingiz
+# MUHIM: Bu haqiqiy 16 xonali Google App Password bo'lishi kerak!
+EMAIL_HOST_PASSWORD = 'jjgnlhzqtlbtjmvz' # <<< YANGILANG!
+DEFAULT_FROM_EMAIL = 'oybek998997564934@gmail.com'

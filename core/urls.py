@@ -1,30 +1,41 @@
+# --- START OF FILE core/urls.py ---
+
 from django.urls import path
-from setuptools.extern import names
-from django.contrib.auth import views as auth_views
-from .views import *
-from django.conf import settings
-from django.conf.urls.static import static
+from . import views # Shu papkadagi views.py ni import qilish
+
+app_name = 'core' # Ilova uchun nom maydoni (namespace)
 
 urlpatterns = [
-    path('register/', register, name='register'),
-    path('', index, name='index'),
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logout.html'), name='logout'),
+    # Authentication URLs (core ilovasiga tegishli)
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('logout/', views.logout_view, name='logout'),
 
-    path('password_reset/', auth_views.PasswordResetView.as_view(
-        template_name='registration/password_reset.html',
-        email_template_name='registration/password_reset_email.html',
-        success_url='/password_reset/done/'), name='password_reset'),
+    # Module and Course URLs
+    # Bosh sahifa (ilovaning ildizi) modullar ro'yxatini ko'rsatadi
+    path('', views.module_list_view, name='module_list'),
+    path('modules/<int:pk>/', views.module_detail_view, name='module_detail'),
+    path('courses/<int:pk>/', views.course_detail_view, name='course_detail'),
+    # Kursni 'Tugatildi' deb belgilash uchun POST endpoint
+    path('courses/<int:pk>/complete/', views.mark_course_complete_view, name='mark_course_complete'),
 
-    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(
-        template_name='registration/password_reset_done.html'), name='password_reset_done'),
+    # Test URLs
+    path('modules/<int:module_pk>/test/', views.take_test_view, name='take_test'), # GET/POST
+    # Test natijasini ko'rsatish (UserTestResult PKsi)
+    path('results/<int:pk>/', views.test_result_view, name='test_result'),
 
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
-        template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
+    # Certificate URLs
+    path('certificates/', views.my_certificates_view, name='my_certificates'), # Mening sertifikatlarim
+    # Bitta sertifikatni UUID bo'yicha ko'rsatish
+    path('certificates/<uuid:certificate_id>/', views.certificate_view, name='certificate_detail'),
 
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(
-        template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
+    # Foydalanuvchi uchun maxsus sahifalar
+    path('my-courses/', views.my_courses_view, name='my_courses'), # Mening kurslarim
+    path('my-results/', views.my_results_view, name='my_results'), # Mening natijalarim
 
-    path('password_change/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change.html'), name='password_change'),
-    path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'), name='password_change_done'),
 ]
+
+# Eslatma: Media fayllarni (settings.MEDIA_URL) sozlash loyihaning asosiy
+# urls.py faylida amalga oshirilishi kerak (DEBUG=True bo'lganda).
+
+# --- END OF FILE core/urls.py ---

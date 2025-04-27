@@ -1,0 +1,68 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Modullar" %} | {% trans "Platforma" %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% trans "Mavjud Modullar" %}</h1>
+    {# <div class="search-bar"> ... </div> #}
+</div>
+
+{% if modules %}
+<div class="item-grid">
+    {% for module in modules %}
+    <div class="card item-card">
+        {# Modul rasmi #}
+        {% if module.image %}
+            {# TUZATILDI: module.image.url ishlatiladi #}
+            <img src="{{ module.image.url }}" alt="{{ module.title }}" class="item-thumbnail">
+        {% else %}
+            
+            <div class="item-thumbnail d-flex align-items-center justify-content-center bg-light">
+                 <i class="fas fa-image fa-2x text-muted"></i>
+            </div>
+           
+        {% endif %}
+
+        <div class="card-content">
+            <h3 class="item-title">{{ module.title }}</h3>
+            {% if module.is_premium %}
+                <span class="badge bg-warning mb-2" style="align-self: flex-start; background-color: var(--warning) !important; color: var(--dark) !important;">
+                    <i class="fas fa-star"></i> {% trans "Premium" %}
+                </span>
+            {% endif %}
+            {% if module.description %}
+                <p class="item-description">{{ module.description|truncatewords:20 }}</p>
+            {% else %}
+                 <div style="flex-grow: 1;"></div> {# Description yo'q bo'lsa #}
+            {% endif %}
+
+            <div class="item-meta mb-3">
+                <i class="fas fa-layer-group"></i> {% blocktrans count counter=module.courses.count %}{{ counter }} kurs{% plural %}{{ counter }} kurs{% endblocktrans %}
+                {% if module.test %}
+                 <span class="mx-1">|</span> <i class="fas fa-check-circle"></i> {% trans "Test mavjud" %}
+                {% endif %}
+            </div>
+             <a href="{% url 'core:module_detail' pk=module.pk %}" class="btn btn-primary mt-auto">
+                 <i class="fas fa-arrow-right"></i> {% trans "Modulga o'tish" %}
+             </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-content text-center">
+        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+        <p class="card-text">{% trans "Hozircha hech qanday modul mavjud emas." %}</p>
+        {% if user.is_staff %}
+        <p><a href="/admin/core/module/add/" class="btn btn-success btn-sm"> <i class="fas fa-plus"></i> {% trans "Yangi Modul Qo'shish" %}</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,163 @@
+<!-- START OF FILE certificate_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Sertifikat" %}: {{ certificate.module.title }} | {% trans "ANORA" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+.certificate-wrapper {
+    max-width: 850px; /* Sertifikat kengligi */
+    margin: 30px auto;
+    padding: 15px;
+    background-color: #f0f3f8; /* Orqa fon */
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.certificate-container {
+    background: var(--white);
+    border: 8px solid;
+    border-image: linear-gradient(135deg, var(--primary), var(--primary-light)) 1; /* Gradient border */
+    padding: 45px 55px; /* Kattaroq padding */
+    text-align: center;
+    position: relative;
+    min-height: 580px; /* Balandlik */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Ichki chiziqlar (ixtiyoriy) */
+.certificate-container::before, .certificate-container::after {
+    content: "";
+    position: absolute;
+    border: 1px dashed var(--primary-light);
+    opacity: 0.6;
+}
+.certificate-container::before { top: 20px; left: 20px; right: 20px; bottom: 20px; }
+.certificate-container::after { top: 25px; left: 25px; right: 25px; bottom: 25px; }
+
+.certificate-header { margin-bottom: 30px; }
+.certificate-logo {
+    font-size: 28px; font-weight: 700; color: var(--primary);
+    display: inline-flex; align-items: center; gap: 12px;
+}
+.certificate-logo .logo-icon { width: 40px; height: 40px; font-size: 22px; }
+
+.certificate-badge { /* Masalan, medal ikonka uchun */
+    font-size: 50px; color: #ffd700; /* Oltin rang */ margin: 15px 0;
+}
+
+.certificate-main-title {
+    font-size: 36px; font-weight: bold; color: var(--secondary);
+    margin-bottom: 10px; font-family: 'Times New Roman', Times, serif; /* Formal shrift */
+    text-transform: uppercase; letter-spacing: 2px;
+}
+.certificate-subtitle { font-size: 18px; color: var(--gray); margin-bottom: 35px; }
+
+.certificate-recipient-label { font-size: 16px; margin-bottom: 5px; color: var(--gray); }
+.certificate-recipient {
+    font-size: 28px; font-weight: 600; margin-bottom: 30px;
+    border-bottom: 2px solid var(--primary-light); display: inline-block; padding-bottom: 5px;
+}
+
+.certificate-reason { font-size: 17px; margin-bottom: 10px; }
+.certificate-course { font-size: 22px; font-weight: 500; color: var(--dark); }
+
+.certificate-footer {
+    margin-top: 40px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-top: 1px solid var(--light-gray); padding-top: 25px;
+    font-size: 13px; color: var(--gray);
+}
+.certificate-date, .certificate-id, .certificate-signature { text-align: center; flex-basis: 30%; }
+.certificate-footer strong { display: block; margin-bottom: 5px; color: var(--dark); font-weight: 600; }
+.certificate-signature span { font-style: italic; }
+
+@media print {
+    body { background-color: white !important; margin: 0; padding: 0; }
+    .sidebar, .main-content > :not(.certificate-wrapper), .mobile-header, .page-header, .messages-container { display: none !important; }
+    .main-content { margin-left: 0 !important; padding: 0 !important; }
+    .certificate-wrapper { margin: 0 !important; padding: 0 !important; box-shadow: none !important; max-width: 100% !important; background: none !important; }
+    .certificate-container { border-width: 10px; min-height: 0; padding: 40px; }
+     /* Chop etish uchun shrift o'lchamlarini moslash */
+    .certificate-main-title { font-size: 32px; }
+    .certificate-recipient { font-size: 24px; }
+    .certificate-course { font-size: 20px; }
+    .certificate-footer { font-size: 12px; }
+}
+
+@media (max-width: 768px) {
+    .certificate-wrapper { padding: 10px; }
+    .certificate-container { padding: 25px 30px; min-height: 500px; }
+    .certificate-main-title { font-size: 28px; }
+    .certificate-recipient { font-size: 22px; }
+    .certificate-course { font-size: 18px; }
+    .certificate-footer { flex-direction: column; align-items: center; gap: 15px; }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% trans "Sertifikat Ko'rish" %}</h1>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary btn-sm" onclick="window.print();">
+            <i class="fas fa-print"></i> {% trans "Chop etish" %}
+        </button>
+         <a href="{% url 'core:my_certificates' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> {% trans "Mening Sertifikatlarimga" %}
+        </a>
+    </div>
+</div>
+
+<div class="certificate-wrapper">
+    <div class="certificate-container">
+        <div> {# Header content #}
+            <div class="certificate-header">
+                <div class="certificate-logo">
+                    <div class="logo-icon">A</div>
+                    <span>{% trans "ANORA" %}</span>
+                </div>
+            </div>
+
+            {# <div class="certificate-badge"><i class="fas fa-medal"></i></div> #}
+
+            <h2 class="certificate-main-title">{% trans "SERTIFIKAT" %}</h2>
+            <p class="certificate-subtitle">{% trans "Muvaffaqiyatli yakunlaganlik to'g'risida" %}</p>
+
+            <p class="certificate-recipient-label">{% trans "Ushbu sertifikat quyidagi shaxsga taqdim etiladi" %}</p>
+            <p class="certificate-recipient">
+                {{ certificate.user.get_full_name|default:certificate.user.username }}
+            </p>
+
+            <p class="certificate-reason">{% trans "quyidagi modulni muvaffaqiyatli yakunlaganligi uchun:" %}</p>
+            <p class="certificate-course">
+                "{{ certificate.module.title }}"
+            </p>
+        </div>
+
+         <div> {# Footer content #}
+            <div class="certificate-footer">
+                <div class="certificate-date">
+                    <strong>{% trans "Berilgan sana" %}</strong>
+                    {{ certificate.created_at|date:"d F Y" }} {# issued_at -> created_at #}
+                </div>
+                <div class="certificate-id">
+                    <strong>{% trans "Unikal ID" %}</strong>
+                    {{ certificate.certificate_id }}
+                </div>
+                 <div class="certificate-signature">
+                    <strong>{% trans "ANORA ma'muriyati" %}</strong>
+                    {# <span>(Imzo)</span> #}
+                </div>
+            </div>
+        </div>
+
+    </div>{# End certificate-container #}
+</div>{# End certificate-wrapper #}
+
+{% endblock %}
+<!-- END OF FILE certificate_detail.html -->

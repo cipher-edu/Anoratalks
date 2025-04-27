@@ -1,0 +1,103 @@
+<!-- START OF FILE module_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ module.title }} | {% trans "Platforma" %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ module.title }}</h1>
+    <a href="{% url 'core:module_list' %}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> {% trans "Barcha Modullar" %}
+    </a>
+</div>
+
+{# Modul tavsifi va testga o'tish #}
+<div class="card mb-4">
+    <div class="card-content">
+        <h3 class="card-title">{% trans "Modul Haqida" %}</h3>
+        {% if module.description %}
+            <p class="card-text">{{ module.description|linebreaks }}</p>
+        {% else %}
+            <p class="card-text text-muted">{% trans "Modul tavsifi kiritilmagan." %}</p>
+        {% endif %}
+
+        {% if test_available %}
+            <hr class="my-4"> {# my-4 = margin top/bottom #}
+            <h4>{% trans "Yakuniy Test" %}</h4>
+            {% if last_test_result %}
+                <div class="alert {% if last_test_result.passed %}alert-success{% else %}alert-warning{% endif %} p-2 px-3 mb-3 d-inline-block" role="alert" style="background-color: {% if last_test_result.passed %}var(--bs-success-bg-subtle){% else %}var(--bs-warning-bg-subtle){% endif %}; border-color: {% if last_test_result.passed %}var(--bs-success-border-subtle){% else %}var(--bs-warning-border-subtle){% endif %}; color: {% if last_test_result.passed %}var(--bs-success-text-emphasis){% else %}var(--bs-warning-text-emphasis){% endif %}; font-size: 14px;">
+                    <i class="fas {% if last_test_result.passed %}fa-check-circle{% else %}fa-history{% endif %} me-1"></i>
+                    <strong>{% trans "Oxirgi Natija:" %}</strong> {{ last_test_result.score }}%
+                    ({% if last_test_result.passed %}{% trans "O'tdingiz" %}{% else %}{% trans "Yiqildingiz" %}{% endif %})
+                    - <small>{{ last_test_result.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+                <br> {# Natijadan keyin yangi qator #}
+            {% endif %}
+
+            {% if can_take_test %}
+                <a href="{% url 'core:take_test' module_pk=module.pk %}" class="btn btn-success">
+                     <i class="fas fa-play-circle"></i>
+                     {% if last_test_result %}{% trans "Testni Qayta Topshirish" %}{% else %}{% trans "Testni Boshlash" %}{% endif %}
+                </a>
+            {% else %}
+                 <p class="card-text text-muted">
+                     <i class="fas fa-lock me-1"></i> {% trans "Testni topshirish uchun avval ushbu modulning barcha kurslarini yakunlashingiz kerak." %}
+                 </p>
+                 {# Test yopiq bo'lsa ham, lekin yozilish imkoni bo'lsa, yozilish tugmasini ko'rsatish mumkin #}
+                 {# Bu logika murakkablashadi, hozircha shunday qoladi #}
+            {% endif %}
+        {% else %}
+             {# Test mavjud bo'lmasa xabar (ixtiyoriy) #}
+             {# <hr><p class="text-muted">Bu modul uchun yakuniy test mavjud emas.</p> #}
+        {% endif %}
+    </div>
+</div>
+
+{# Kurslar Ro'yxati #}
+<h3 style="margin-bottom: 15px;">{% trans "Modul Kurslari" %}</h3>
+{% if module.courses.all %}
+<div class="list-group">
+    {% for course in module.courses.all %}
+        <div class="list-group-item">
+            <div class="d-flex align-items-center">
+                <span class="me-3 text-muted" style="min-width: 20px; text-align: right;">{{ forloop.counter }}.</span>
+                <a href="{% url 'core:course_detail' pk=course.pk %}" class="stretched-link"> {# Stretched-link butun itemni kliklanadigan qiladi #}
+                   {{ course.title }}
+                </a>
+            </div>
+            {# Status Badge #}
+             {% if course.pk in user_completed_courses_pks %}
+                <span class="badge bg-success">
+                    <i class="fas fa-check"></i> {% trans "Tugatilgan" %}
+                </span>
+             {% elif course.pk in user_enrolled_courses_pks %}
+                 <span class="badge bg-info"> {# Info yoki boshqa rang #}
+                     <i class="fas fa-circle-notch fa-spin"></i> {# Spin icon #} {% trans "Jarayonda" %}
+                 </span>
+             {% elif course.is_free and not module.is_premium %}
+                  <span class="badge bg-secondary">
+                     <i class="fas fa-play"></i> {% trans "Boshlash" %}
+                 </span>
+             {% else %} {# Pullik/Premium va yozilmagan #}
+                 <span class="badge bg-secondary">
+                     <i class="fas fa-lock"></i> {% trans "Yopiq" %}
+                 </span>
+             {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-content text-center">
+         <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+        <p class="card-text">{% trans "Bu modulda hali kurslar mavjud emas." %}</p>
+         {% if user.is_staff %}
+        <p><a href="/admin/core/course/add/?module={{ module.pk }}" class="btn btn-success btn-sm"> <i class="fas fa-plus"></i> {% trans "Yangi Kurs Qo'shish" %}</a></p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

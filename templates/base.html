@@ -1,0 +1,369 @@
+<!-- START OF FILE base.html -->
+
+{% load static %}
+{% load i18n %} {# Tarjima uchun #}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE|default:"uz" }}"> {# Tilni dinamik olish #}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Dinamik Sarlavha -->
+    <title>{% block title %}{% trans "AnorEdu Platformasi" %}{% endblock %}</title> {# Nom o'zgardi #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts (Optional, if you want Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-hover: #3a53d0; /* Yangi: Hover uchun to'qroq rang */
+            --secondary: #3f37c9;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa; /* Oqga yaqinroq */
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #adb5bd; /* Yangi */
+            --light-gray: #e9ecef;
+            --white: #ffffff;
+            --border-color: #dee2e6; /* Yangi */
+            --border-radius: 8px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06); /* Yumshoqroq soya */
+            --transition: all 0.25s ease-in-out; /* Tezroq o'tish */
+            --font-family-sans-serif: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { background-color: #f8f9fc;  color: var(--dark); line-height: 1.6; font-family: var(--font-family-sans-serif); font-size: 15px; }
+        .container-fluid { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--white);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.05);
+            padding: 0; 
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 101; 
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+        .sidebar-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .logo { font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 17px; flex-shrink: 0;}
+        .nav-menu { list-style: none; padding: 15px 0; flex-grow: 1; overflow-y: auto; }
+        .nav-section-title { padding: 5px 25px; margin-top: 15px; font-size: 11px; font-weight: 600; color: var(--gray-light); text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-item { margin-bottom: 0; }
+        .nav-link {
+            display: flex; align-items: center; padding: 12px 25px;
+            color: var(--gray); text-decoration: none; transition: var(--transition);
+            font-weight: 500; font-size: 14.5px; border-left: 3px solid transparent;
+            margin: 2px 10px 2px 10px; border-radius: 6px;
+        }
+        .nav-link:hover { color: var(--primary); background-color: rgba(157, 35, 58, 0.06); border-left-color: transparent; }
+        .nav-link.active { color: var(--primary); background-color: rgba(157, 35, 58, 0.1); border-left: 3px solid var(--primary); font-weight: 600; margin-left: 10px; }
+        .nav-link i { margin-right: 15px; font-size: 17px; width: 20px; text-align: center; color: var(--gray-light); transition: var(--transition); }
+        .nav-link:hover i, .nav-link.active i { color: var(--primary); }
+
+        .sidebar-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); margin-top: auto; flex-shrink: 0; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 32px; height: 32px; background-color: rgba(157, 35, 58, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--primary); font-size: 14px; }
+        .user-name { font-weight: 500; font-size: 14px; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .logout-link { display: block; margin-top: 5px; font-size: 13px; color: var(--danger); text-decoration: none; }
+        .logout-link:hover { text-decoration: underline; }
+        .main-content { flex: 1; margin-left: 250px; padding: 25px; transition: margin-left 0.3s ease; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        h1, h2, h3, h4, h5, h6 { color: #343a40;  margin-bottom: 0.75em; font-weight: 600; }
+        h1 { font-size: 26px; } h2 {font-size: 22px;} h3{font-size: 19px;}
+        p { margin-bottom: 1em; color: #5a6474; }
+        a { color: var(--primary); text-decoration: none; transition: var(--transition); }
+        a:hover { color: var(--secondary); }
+        .stretched-link::after { position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 1; content: ""; }
+
+        .card { background-color: var(--white); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--border-color); /* Chegara qo'shildi */ margin-bottom: 25px; overflow: hidden; }
+        .card-content { padding: 25px; }
+        .card-header { padding: 15px 25px;  background-color: var(--white);  border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 17px; /* Kattaroq shrift */}
+        .card-footer { padding: 15px 25px; background-color: var(--light); border-top: 1px solid var(--border-color); }
+        .card-title { font-size: 18px; font-weight: 600; margin-bottom: 15px; }
+        .card-text { color: var(--gray); font-size: 14px; }
+
+
+        .btn { padding: 9px 20px; border: none; border-radius: var(--border-radius); font-weight: 500; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14.5px; line-height: 1.5; }
+
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(157, 35, 58, 0.2); }
+        .btn-secondary { background-color: var(--light-gray); color: var(--dark); }
+        .btn-secondary:hover { background-color: #dee2e6; }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-success:hover { background-color: #157347; }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { background-color: #bb2d3b; }
+        .btn-warning { background-color: var(--warning); color: var(--dark); }
+        .btn-warning:hover { background-color: #ffca2c; }
+        .btn-info { background-color: #e0e7ff; /* Ochroq ko'k/binafsha */ color: #4338ca; /* To'qroq ko'k/binafsha */ }
+        .btn-info:hover { background-color: #c7d2fe; }
+        .btn-outline-primary { border: 1px solid var(--primary); color: var(--primary); background-color: transparent; }
+        .btn-outline-primary:hover { background-color: var(--primary); color: white; }
+        .btn-sm { padding: 6px 15px; font-size: 13px; }
+        .btn-lg { padding: 12px 28px; font-size: 16px; }
+        .btn-link { background: none; color: var(--primary); padding: 0; }
+        .btn-link:hover { color: var(--secondary); text-decoration: underline; }
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+        .form-control { width: 100%; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 14.5px; transition: var(--transition); background-color: var(--white); }
+        
+        .form-control:focus { outline: none; border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(157, 35, 58, 0.1); }
+        .form-control.is-invalid { border-color: var(--danger); }
+        .invalid-feedback { color: var(--danger); font-size: 0.875em; margin-top: 0.25rem; display: block; }
+        .form-text { font-size: 13px; color: var(--gray); margin-top: 5px; }
+        .form-check { display: flex; align-items: center; margin-bottom: 10px; padding-left: 0; }
+        .form-check-input { width: 1.1em; height: 1.1em; margin-right: 0.5em; margin-top: 0.1em; flex-shrink: 0; cursor: pointer;}
+        .form-check-input:checked { background-color: var(--primary); border-color: var(--primary); } /* Checked rangi */
+        .form-check-label { margin-bottom: 0; cursor: pointer; font-weight: normal; }
+        .form-check-list .form-check { margin-bottom: 12px; }
+        .form-check-list .form-check label { font-size: 15px; }
+        .messages-container { margin-bottom: 20px; }
+        .messages { list-style: none; padding: 0; margin: 0; }
+        .alert.messages li, .messages .alert {
+             padding: 1rem 1rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: var(--border-radius);
+             display: flex; align-items: center; gap: 10px;
+         }
+        .alert i { font-size: 1.2em; flex-shrink: 0; }
+        .alert.alert-success, .messages .success { color: #0f5132; background-color: #d1e7dd; border-color: #badbcc; }
+        .alert.alert-info, .messages .info { color: #4e2f8a; background-color: #e9d5ff; border-color: #d8b4fe; } /* Info rangi (binafsha) */
+        .alert.alert-warning, .messages .warning { color: #664d03; background-color: #fff3cd; border-color: #ffecb5; }
+        .alert.alert-danger, .messages .error { color: #842029; background-color: #f8d7da; border-color: #f5c2c7; }
+        .btn-close { background: transparent escape("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat; border: 0; border-radius: .25rem; opacity: .5; padding: .5rem .5rem; cursor: pointer; margin-left: auto; }
+        .btn-close:hover { opacity: .75; }
+        .list-group { list-style: none; padding: 0; margin-bottom: 20px; background-color: var(--white); border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid var(--border-color); }
+        .list-group-item { padding: 15px 20px; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s ease; display: flex; justify-content: space-between; align-items: center; gap: 15px; position: relative; }
+        .list-group-item:last-child { border-bottom: none; }
+        .list-group-item:hover { background-color: #fdf8f9; /* Och pushti hover */ }
+        .list-group-item a:not(.btn) { color: var(--dark); text-decoration: none; font-weight: 500; }
+        .list-group-item .badge { background-color: var(--primary); color: white; padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .badge.bg-success { background-color: var(--success) !important; }
+        .badge.bg-secondary { background-color: var(--gray) !important; }
+        .badge.bg-info { background-color: #e9d5ff !important; color: #581c87 !important; } /* Info badge rangi */
+        .badge.bg-danger { background-color: var(--danger) !important; }
+        .badge.bg-warning { background-color: var(--warning) !important; color: var(--dark) !important; }
+
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .item-card { margin-bottom: 0; display: flex; flex-direction: column; height: 100%; transition: var(--transition); border: 1px solid var(--border-color); }
+        .item-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(157, 35, 58, 0.1); border-color: rgba(157, 35, 58, 0.2); }
+        .item-card .card-content { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; }
+        .item-card .card-footer { margin-top: auto; }
+        .item-thumbnail { height: 160px; width: 100%; object-fit: cover; background-color: var(--light-gray); border-bottom: 1px solid var(--border-color); }
+        .item-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+        .item-description { color: var(--gray); font-size: 13.5px; line-height: 1.5; margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 1; }
+        .item-meta { font-size: 13px; color: var(--gray); display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .table { width: 100%; margin-bottom: 1rem; color: var(--dark); vertical-align: middle; border-color: var(--border-color); }
+        .table > :not(caption) > * > * { padding: .75rem .75rem; background-color: transparent; border-bottom-width: 1px; box-shadow: inset 0 0 0 9999px transparent; }
+        .table > thead { vertical-align: bottom; }
+        .table > thead th { font-weight: 600; color: var(--gray); background-color: var(--light); border-bottom-width: 2px; }
+        .table-hover > tbody > tr:hover > * { background-color: rgba(157, 35, 58, 0.04); }
+        .table-striped > tbody > tr:nth-of-type(odd) > * { background-color: rgba(157, 35, 58, 0.02); }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .mobile-menu-toggle { display: none; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--dark); padding: 5px 10px; line-height: 1; }
+        .mobile-header { display: none; }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); box-shadow: 5px 0 15px rgba(0,0,0,0.1); }
+            .main-content { margin-left: 0; }
+            .mobile-header {
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 10px 15px; background-color: var(--white);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                position: sticky; top: 0; z-index: 99; border-bottom: 1px solid var(--border-color);
+            }
+            .mobile-menu-toggle { display: block; }
+        }
+         @media (max-width: 768px) {
+            .item-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+            .main-content { padding: 15px; }
+            .page-header { margin-bottom: 20px; }
+            h1 { font-size: 22px; }
+            .card-content { padding: 20px; }
+            .table { font-size: 14px; }
+            .table > :not(caption) > * > * { padding: .6rem .6rem; }
+        }
+        @media (max-width: 576px) {
+             .item-grid { grid-template-columns: 1fr; }
+             .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+             .btn:not(.btn-sm) { width: 100%; text-align: center; justify-content: center; }
+             .list-group-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+             .list-group-item > div:last-child { margin-top: 10px; width: 100%; display: flex; justify-content: space-between; align-items: center;}
+             .list-group-item .btn { width: auto; }
+             .card-content { padding: 15px; }
+             .form-group { margin-bottom: 15px; }
+        }
+
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="{% url 'core:module_list' %}" class="logo">
+                    <div class="logo-icon">A</div> {# Logo o'zgardi #}
+                    <span>{% trans "AnorEdu" %}</span> {# Nom o'zgardi #}
+                </a>
+            </div>
+
+            <ul class="nav-menu">
+                 {# Asosiy Navigatsiya #}
+                 <li class="nav-item">
+                    <a href="{% url 'core:module_list' %}" class="nav-link {% if request.resolver_match.view_name == 'core:module_list' or request.resolver_match.view_name == 'core:module_detail' or request.resolver_match.view_name == 'core:course_detail' %}active{% endif %}">
+                        <i class="fas fa-layer-group"></i>
+                        <span>{% trans "Modullar" %}</span>
+                    </a>
+                </li>
+                {% if user.is_authenticated %} {# Foydalanuvchi uchun linklar #}
+                 <li class="nav-item">
+                    <a href="{% url 'core:my_courses' %}" class="nav-link {% if request.resolver_match.view_name == 'core:my_courses' %}active{% endif %}">
+                        <i class="fas fa-book-open"></i>
+                        <span>{% trans "Mening Kurslarim" %}</span>
+                    </a>
+                </li>
+                 <li class="nav-item">
+                    <a href="{% url 'core:my_results' %}" class="nav-link {% if request.resolver_match.view_name == 'core:my_results' or request.resolver_match.view_name == 'core:test_result' %}active{% endif %}">
+                        <i class="fas fa-poll"></i>
+                        <span>{% trans "Mening Natijalarim" %}</span>
+                    </a>
+                </li>
+                 <li class="nav-item">
+                    <a href="{% url 'core:my_certificates' %}" class="nav-link {% if request.resolver_match.view_name == 'core:my_certificates' or request.resolver_match.view_name == 'core:certificate_detail' %}active{% endif %}">
+                        <i class="fas fa-certificate"></i>
+                        <span>{% trans "Sertifikatlarim" %}</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {# Foydalanuvchi yoki Kirish/Ro'yxatdan o'tish bo'limi #}
+                <div class="nav-section-title">{% trans "Hisob" %}</div>
+
+                {% if user.is_authenticated %}
+                 <li class="nav-item">
+                    <a href="{% url 'password_change' %}" class="nav-link {% if request.resolver_match.view_name == 'password_change' %}active{% endif %}">
+                        <i class="fas fa-key"></i>
+                        <span>{% trans "Parolni o'zgartirish" %}</span>
+                    </a>
+                 </li>
+                  {# Kelajakda Profil/Sozlamalar uchun linklar #}
+               {% else %}
+                 <li class="nav-item">
+                    <a href="{% url 'core:login' %}" class="nav-link {% if request.resolver_match.view_name == 'core:login' %}active{% endif %}">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>{% trans "Kirish" %}</span>
+                    </a>
+                </li>
+                 <li class="nav-item">
+                    <a href="{% url 'core:register' %}" class="nav-link {% if request.resolver_match.view_name == 'core:register' %}active{% endif %}">
+                        <i class="fas fa-user-plus"></i>
+                        <span>{% trans "Ro'yxatdan o'tish" %}</span>
+                    </a>
+                </li>
+                 {# Kirishda parolni unutganlar uchun link login.html da #}
+                {% endif %}
+            </ul>
+
+            {# Sidebar Footer (Foydalanuvchi ma'lumoti va Chiqish) #}
+            {% if user.is_authenticated %}
+            <div class="sidebar-footer">
+                 <div class="user-info mb-1">
+                     <div class="user-avatar">{{ user.username.0|upper }}</div>
+                     <span class="user-name" title="{{ user.get_full_name|default:user.username }}">{{ user.get_full_name|default:user.username }}</span>
+                 </div>
+                 <a href="{% url 'core:logout' %}" class="logout-link">
+                     <i class="fas fa-sign-out-alt"></i> {% trans "Chiqish" %}
+                 </a>
+            </div>
+            {% endif %}
+        </aside>
+        <main class="main-content" id="main-content">
+            <div class="mobile-header">
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="{% trans 'Menyuni ochish' %}">
+                    <i class="fas fa-bars"></i>
+                </button>
+                 <a href="{% url 'core:module_list' %}" class="logo">
+                    <div class="logo-icon">A</div> {# Mobil logo #}
+                    <span>{% trans "AnorEdu" %}</span>
+                </a>
+                 <div style="width: 40px;"></div> {# Simmetriya uchun #}
+            </div>
+            {% if messages %}
+            <div class="messages-container">
+                <ul class="messages list-unstyled">
+                    {% for message in messages %}
+                    <li class="alert alert-{% if message.level == 40 %}danger{% elif message.level == 30 %}warning{% elif message.level == 25 %}success{% else %}info{% endif %} alert-dismissible fade show" role="alert"> {# Levelga qarab class #}
+                         {% if message.level == 25 %}<i class="fas fa-check-circle"></i>
+                         {% elif message.level == 40 %}<i class="fas fa-times-circle"></i>
+                         {% elif message.level == 30 %}<i class="fas fa-exclamation-triangle"></i>
+                         {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                        <span>{{ message }}</span>
+                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+     <script>
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+        const toggleBtn = document.getElementById('mobile-menu-toggle');
+        const body = document.body;
+
+        if (toggleBtn && sidebar && mainContent) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('open');
+                body.classList.toggle('sidebar-open');
+            });
+
+             document.addEventListener('click', (event) => {
+                 if (window.innerWidth < 992 && sidebar.classList.contains('open')) {
+                    if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                        sidebar.classList.remove('open');
+                        body.classList.remove('sidebar-open');
+                    }
+                 }
+            });
+        }
+
+         // Bootstrap 5 alertlarni yopish uchun JS
+         // Bu funksiya endi kerak bo'lmasligi mumkin, chunki Bootstrap JS qo'shildi
+        
+        const alertList = document.querySelectorAll('.alert .btn-close');
+        alertList.forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                const alert = event.target.closest('.alert.show');
+                if (alert) {
+                     alert.remove();
+                }
+            });
+        });
+        
+    </script>
+    {# Bootstrap 5 JS (Alertlar va boshqa komponentlar uchun kerak) #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<!-- END OF FILE base.html -->
